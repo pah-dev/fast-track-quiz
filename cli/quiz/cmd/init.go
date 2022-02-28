@@ -1,5 +1,5 @@
 /*
-Copyright © 2022 NAME HERE <EMAIL ADDRESS>
+Copyright © 2022 JEAN PAUL BOBENRIETH <jeanpaulb79 (at) gmail com>
 
 */
 package cmd
@@ -12,17 +12,14 @@ import (
 var initCmd = &cobra.Command{
 	Use:   "init",
 	Short: "Start Game",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Long: `
+Start the game
+quiz init -n NAME
+Write your name otherwise play as a guest.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if flag, _ := cmd.Flags().GetString("name"); flag != "" {
 			services.StartQuiz(flag)
 		}
-		// TODO: ver flag vacio
 	},
 }
 

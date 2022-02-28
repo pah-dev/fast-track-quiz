@@ -29,7 +29,6 @@ func StartQuiz(name string) (err error) {
 	var response models.ApiResponse
     json.Unmarshal(responseBody, &response)
 	if response.Response == "OK"{
-		fmt.Println(response.Data)
 		game := models.GetGameFromDTO(response.Data)
 		utils.ConfigKeyValuePairUpdate("player_id", game.PlayerId)
 		fmt.Println("")
@@ -45,7 +44,6 @@ func StartQuiz(name string) (err error) {
 	}else{
 		utils.PrintError(fmt.Sprint(response.Data))
 	}
-	
 	return
 }
 
@@ -69,7 +67,6 @@ func GetOneQuestion() (err error) {
     json.Unmarshal(body, &response)
 	if response.Response == "OK"{
 		question := models.GetQuestionFromDTO(response.Data)
-		fmt.Println(question)
 		fmt.Println("")
 		fmt.Println("###############################################")
 		fmt.Println("		QUESTION ID: " + fmt.Sprint(question.Id))
@@ -158,12 +155,11 @@ func EndQuiz()(err error){
 		fmt.Println(fmt.Sprint(game.PlayerName) + ", this is your result:")
 		fmt.Println("  Total answers:     " + fmt.Sprint(game.Questions))
 		fmt.Println("  Correct answers:   " + fmt.Sprint(game.Answers))
-		percent := (float32(game.Answers) / float32(game.Questions)) * 100
 		fmt.Println("-----------------------------------------------")
-		fmt.Println("  " + fmt.Sprint(percent) + "%" + " success")
+		fmt.Println("  " + fmt.Sprint(game.Success) + "%" + " success")
+		fmt.Println("  You were better than " + fmt.Sprint(game.Position) + "%" + " of all quizzers")
 		fmt.Println("###############################################")
 		fmt.Println("")
-
 		utils.DeleteKeyHack("player_id")
 	}else{
 		utils.PrintError(fmt.Sprint(response.Data))

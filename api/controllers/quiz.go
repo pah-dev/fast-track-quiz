@@ -3,11 +3,13 @@ package controllers
 import (
 	"math/rand"
 	"net/http"
+	"sort"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/pah-dev/fast-track-quiz/api/database"
 	"github.com/pah-dev/fast-track-quiz/api/models"
+	"github.com/pah-dev/fast-track-quiz/api/utils"
 )
 
 var Quiz *QuizController
@@ -32,27 +34,32 @@ func (w *QuizController) StartQuiz(c *gin.Context){
 	})
 }
 
-//GetQuizByID ... Get the quiz by id
 func (w *QuizController) EndQuiz(c *gin.Context) {
 	idPlayer := c.Params.ByName("id")
 	game := database.Games[idPlayer]
+	percent := (float32(game.Answers) / float32(game.Questions)) * 100
+	game.Success = utils.RoundUp(percent)
+	rank := models.Ranking{PlayerId: idPlayer, Success: percent}
+	database.Ranking = append(database.Ranking, rank)
+	pos := getPosition(idPlayer)
+	game.Position = pos
+	database.Games[idPlayer] = game
 	c.IndentedJSON(http.StatusOK, gin.H{
 		"response" : "OK",
 		"data" : game,
 	})
 }
 
-//GetQuizByID ... Get the quiz by id
 func (w *QuizController) GetOneQuestion(c *gin.Context) {
 	playerId := c.Params.ByName("id")
-	pend := PendingQuestion(playerId)
+	pend := pendingQuestion(playerId)
 	if pend {
 		c.IndentedJSON(http.StatusOK, gin.H{
 			"response" : "error",
-			"data" : "You have a pendging question",
+			"data" : "You have a pending question",
 		})
 	}else{
-		questionId := GetQuestionId(playerId)
+		questionId := getQuestionId(playerId)
 		if questionId > 0 {
 			c.IndentedJSON(http.StatusOK, gin.H{
 				"response" : "OK",
@@ -67,7 +74,6 @@ func (w *QuizController) GetOneQuestion(c *gin.Context) {
 	}
 }
 
-//GetQuizByID ... Get the quiz by id
 func (w *QuizController) AnswerQuestion(c *gin.Context) {
 	var round models.Round
 	err := c.ShouldBindJSON(&round)
@@ -75,7 +81,7 @@ func (w *QuizController) AnswerQuestion(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, err)
 		return
 	}
-	ans := CheckAnswer(round)
+	ans := checkAnswer(round)
 	if ans < 0 {
 		c.IndentedJSON(http.StatusOK, gin.H{
 			"response" : "error",
@@ -94,22 +100,25 @@ func (w *QuizController) AnswerQuestion(c *gin.Context) {
 	}
 }
 
-//GetQuizByID ... Get the quiz by id
 func (w *QuizController) GetQuestions(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, database.Questions)
 }
 
-//GetQuizByID ... Get the quiz by id
 func (w *QuizController) GetGames(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, database.Games)
 }
 
-func PendingQuestion(playerId string) bool{
+func (w *QuizController) GetRanking(c *gin.Context) {
+	c.IndentedJSON(http.StatusOK, database.Ranking)
+}
+
+func pendingQuestion(playerId string) bool{
 	game := database.Games[playerId]
 	return game.Pending
 }
 
-func GetQuestionId(playerId string) int{
+// Function to get a random question and not repeated
+func getQuestionId(playerId string) int{
 	game := database.Games[playerId]
 	if game.PlayerId != "" && len(game.List) < len(database.Questions) {
 		if len(game.List) == 0 {
@@ -137,8 +146,11 @@ func GetQuestionId(playerId string) int{
 	return -1
 }
 
-func CheckAnswer(round models.Round) int{
+func checkAnswer(round models.Round) int{
 	resp := -1
+	if(round.Question > len(database.Questions)){
+		return resp
+	}
 	quiz := database.Questions[round.Question-1]
 	player := database.Games[round.PlayerId]
 	if player.PendingId == round.Question {
@@ -155,69 +167,16 @@ func CheckAnswer(round models.Round) int{
 	return resp
 }
 
-// //GetQuizByID ... Get the quiz by id
-// func (w *QuizController) GetQuizByID(c *gin.Context) {
-// 	var quiz models.Quiz
-// 	id := c.Params.ByName("id")
-// 	db := c.MustGet("db").(*gorm.DB)
-// 	err := models.QuizModel.GetQuizByID(db, &quiz, id)
-// 	if err != nil {
-// 		c.AbortWithStatus(http.StatusNotFound)
-// 	} else {
-// 		c.JSON(http.StatusOK, quiz)
-// 	}
-// }
-
-// func (w *QuizController) Balance(c *gin.Context){
-// 	var quiz models.Quiz
-// 	id := c.Params.ByName("id")
-// 	db := c.MustGet("db").(*gorm.DB)
-// 	err := models.QuizModel.GetQuizByID(db, &quiz, id)
-// 	if err != nil {
-// 		c.AbortWithStatus(http.StatusNotFound)
-// 	} else {
-// 		c.JSON(http.StatusOK, quiz)
-// 	}
-// }
-
-// func (w *QuizController) Credit(c *gin.Context){
-// 	var quiz models.UpdateQuiz
-// 	var oldQuiz models.Quiz
-// 	id := c.Params.ByName("id")
-// 	db := c.MustGet("db").(*gorm.DB)
-// 	err := c.ShouldBindJSON(&quiz)
-// 	if err != nil {
-// 		c.JSON(http.StatusBadRequest, err)
-// 		return
-// 	}
-// 	err = models.QuizModel.GetQuizByID(db, &oldQuiz, id)
-// 	if err != nil {
-// 		c.AbortWithStatus(http.StatusNotFound)
-// 	}
-// 	err = models.QuizModel.CreditQuiz(db, &oldQuiz, &quiz)
-// 	if err != nil {
-// 		c.AbortWithStatus(http.StatusNotFound)
-// 	}
-// 	c.JSON(http.StatusOK, oldQuiz)
-// }
-
-// func (w *QuizController) Debit(c *gin.Context){
-// 	var quiz models.UpdateQuiz
-// 	var oldQuiz models.Quiz
-// 	id := c.Params.ByName("id")
-// 	db := c.MustGet("db").(*gorm.DB)
-// 	err := c.ShouldBindJSON(&quiz)
-// 	if err != nil {
-// 		c.JSON(http.StatusBadRequest, err)
-// 		return
-// 	}
-// 	err = models.QuizModel.GetQuizByID(db, &oldQuiz, id)
-// 	if err != nil {
-// 		c.AbortWithStatus(http.StatusNotFound)
-// 	}
-// 	err = models.QuizModel.DebitQuiz(db, &oldQuiz, &quiz)
-// 	if err != nil {
-// 		c.AbortWithStatus(http.StatusNotFound)
-// 	}
-// 	c.JSON(http.StatusOK, oldQuiz)
-// }
+func getPosition(playerId string) int{
+	pos := len(database.Ranking)
+	sort.SliceStable(database.Ranking, func(i, j int) bool {
+		return database.Ranking[i].Success < database.Ranking[j].Success
+	})
+	for i := 0; i < len(database.Ranking); i++ {
+		if database.Ranking[i].PlayerId == playerId {
+			pos = i+1
+		}
+	}
+	rank := (pos / len(database.Ranking))*100
+	return rank
+}

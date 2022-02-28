@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/pah-dev/fast-track-quiz/api/routes"
+	"github.com/pah-dev/fast-track-quiz/api/utils"
 )
 
 func main() {
@@ -10,5 +11,5 @@ func main() {
     
     routes.Quiz(router)
     
-    router.Run("localhost:8089")
+    router.Run(":" + utils.GodotEnv("GO_PORT"))
 }

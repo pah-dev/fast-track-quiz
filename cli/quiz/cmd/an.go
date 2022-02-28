@@ -1,5 +1,5 @@
 /*
-Copyright © 2022 NAME HERE <EMAIL ADDRESS>
+Copyright © 2022 JEAN PAUL BOBENRIETH <jeanpaulb79 (at) gmail com>
 
 */
 package cmd
@@ -13,16 +13,21 @@ import (
 var anCmd = &cobra.Command{
 	Use:   "an",
 	Short: "Answer Question",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
+	Long: `
+Answer question
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+quiz an -i X -a Y 
+
+Where X is the question ID and Y is the answer number.
+Ex: quiz an -i 5 -a 2`,
 	Run: func(cmd *cobra.Command, args []string) {
-		if flagId, _ := cmd.Flags().GetInt("id"); flagId != 0 {
+		if flagId, _ := cmd.Flags().GetInt("id"); flagId > 0 {
 			if flagAns, _ := cmd.Flags().GetInt("answer"); flagAns != 0 {
-				services.AnswerQuestion(flagId, flagAns)
+				if flagAns > 0 && flagAns < 5 {
+					services.AnswerQuestion(flagId, flagAns)
+				}else{
+					utils.PrintError("Answer must be between 1 and 4")
+				}
 			}else{
 				utils.PrintError("Answer number required, ex: -a 2")
 			}

@@ -15,4 +15,5 @@ func Quiz(e *gin.Engine) {
 
 	r.GET("/questions", controllers.Quiz.GetQuestions)
 	r.GET("/games", controllers.Quiz.GetGames)
+	r.GET("/ranking", controllers.Quiz.GetRanking)
 }

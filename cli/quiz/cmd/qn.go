@@ -1,5 +1,5 @@
 /*
-Copyright © 2022 NAME HERE <EMAIL ADDRESS>
+Copyright © 2022 JEAN PAUL BOBENRIETH <jeanpaulb79 (at) gmail com>
 
 */
 package cmd
@@ -12,12 +12,13 @@ import (
 var qnCmd = &cobra.Command{
 	Use:   "qn",
 	Short: "Get a Question",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
+	Long: `
+Get a Question
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+quiz qn
+
+Get a question with four options.
+You must answer the pending question, if you have one, before requesting another.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		services.GetOneQuestion()
 	},

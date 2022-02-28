@@ -10,4 +10,6 @@ type Game struct {
 	Pending    bool        `json:"pending"`
 	PendingId  int         `json:"pending_id"`
 	List       map[int]int `json:"list"`
+	Success    float32     `json:"success"`
+	Position   int         `json:"position"`
 }

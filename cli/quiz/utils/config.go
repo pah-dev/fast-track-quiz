@@ -59,7 +59,6 @@ func writeKeyValuePair(key string, value interface{}) {
 	viper.Set(key, value)
 	err := viper.WriteConfig()
 	HandleError(err)
-	fmt.Printf("Wrote the %s pair.\n", key)
 }
 
 func findExistingKey(theKey string) bool {

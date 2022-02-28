@@ -14,6 +14,7 @@ func PrintError(err string){
 	fmt.Println("")
 	fmt.Println("!!-------------------------------------------!!")
 	fmt.Println("	" + err)
+	fmt.Println("	Try again")
 	fmt.Println("!!-------------------------------------------!!")
 	fmt.Println("")
 }

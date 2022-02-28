@@ -1,5 +1,5 @@
 /*
-Copyright © 2022 NAME HERE <EMAIL ADDRESS>
+Copyright © 2022 JEAN PAUL BOBENRIETH <jeanpaulb79 (at) gmail com>
 
 */
 package main

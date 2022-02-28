@@ -1,5 +1,5 @@
 /*
-Copyright © 2022 NAME HERE <EMAIL ADDRESS>
+Copyright © 2022 JEAN PAUL BOBENRIETH <jeanpaulb79 (at) gmail com>
 
 */
 package cmd
@@ -13,12 +13,12 @@ import (
 var endCmd = &cobra.Command{
 	Use:   "end",
 	Short: "End Game",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
+	Long: `
+End Game
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+quiz end
+
+End game to see your results.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		services.EndQuiz()
 	},
